@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Buddy</title>
+  <meta name="description" content="All-in-one AI-powered study companion Chrome extension">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══════════════════════════════════ HEADER -->
+  <header class="app-header">
+    <div class="header-brand">
+      <span class="brand-icon">📚</span>
+      <span class="brand-name">Student Buddy</span>
+    </div>
+    <div class="header-actions">
+      <div class="streak-badge" id="streakBadge" title="Study streak">
+        <span>🔥</span>
+        <span id="streakCount">0</span>
+      </div>
+      <button class="icon-btn" id="settingsBtn" title="Settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════ NAV -->
+  <nav class="tab-nav" role="tablist">
+    <button class="tab-btn active" data-tab="timer" role="tab" title="Pomodoro Timer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Timer</span>
+    </button>
+    <button class="tab-btn" data-tab="tasks" role="tab" title="To-Do List">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>Tasks</span>
+    </button>
+    <button class="tab-btn" data-tab="flashcards" role="tab" title="Flashcards">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span>Cards</span>
+    </button>
+    <button class="tab-btn" data-tab="ai" role="tab" title="AI Summarizer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M22 2L12 12"/><path d="M15 2h7v7"/></svg>
+      <span>AI</span>
+    </button>
+    <button class="tab-btn" data-tab="stats" role="tab" title="Study Stats">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Stats</span>
+    </button>
+    <button class="tab-btn" data-tab="notes" role="tab" title="Quick Notes">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Notes</span>
+    </button>
+    <button class="tab-btn" data-tab="schedule" role="tab" title="Study Schedule">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Plan</span>
+    </button>
+    <button class="tab-btn" data-tab="focus" role="tab" title="Focus Mode">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>
+      <span>Focus</span>
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════════ CONTENT -->
+  <main class="tab-content">
+
+    <!-- ─────────────────────── TIMER TAB -->
+    <section class="tab-panel active" id="tab-timer" role="tabpanel">
+      <div class="timer-container">
+        <div class="timer-modes">
+          <button class="mode-btn active" data-mode="focus">Focus</button>
+          <button class="mode-btn" data-mode="short">Short Break</button>
+          <button class="mode-btn" data-mode="long">Long Break</button>
+        </div>
+
+        <div class="timer-ring-container">
+          <svg class="timer-ring" width="196" height="196" viewBox="0 0 196 196">
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#8b5cf6"/>
+                <stop offset="100%" stop-color="#14b8a6"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-track" cx="98" cy="98" r="86" fill="none" stroke-width="8"/>
+            <circle class="ring-progress" id="ringProgress" cx="98" cy="98" r="86" fill="none"
+              stroke="url(#ringGrad)" stroke-width="8" stroke-linecap="round"
+              transform="rotate(-90 98 98)"/>
+          </svg>
+          <div class="timer-display">
+            <div class="timer-time" id="timerDisplay">25:00</div>
+            <div class="timer-label" id="timerLabel">Focus Time</div>
+          </div>
+        </div>
+
+        <div class="timer-sessions">
+          <div class="session-dots" id="sessionDots">
+            <div class="session-dot active"></div>
+            <div class="session-dot"></div>
+            <div class="session-dot"></div>
+            <div class="session-dot"></div>
+          </div>
+          <span class="session-label">Session <span id="currentSession">1</span> / 4</span>
+        </div>
+
+        <div class="timer-controls">
+          <button class="timer-btn secondary" id="timerResetBtn" title="Reset">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.45"/></svg>
+          </button>
+          <button class="timer-btn primary" id="timerStartBtn" title="Start/Pause">
+            <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <svg id="pauseIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
+          <button class="timer-btn secondary" id="timerSkipBtn" title="Skip">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+          </button>
+        </div>
+
+        <div class="timer-settings-row">
+          <div class="timer-setting">
+            <label>Focus</label>
+            <input type="number" id="focusDuration" value="25" min="1" max="99"> min
+          </div>
+          <div class="timer-divider"></div>
+          <div class="timer-setting">
+            <label>Short</label>
+            <input type="number" id="shortBreakDuration" value="5" min="1" max="30"> min
+          </div>
+          <div class="timer-divider"></div>
+          <div class="timer-setting">
+            <label>Long</label>
+            <input type="number" id="longBreakDuration" value="15" min="1" max="60"> min
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── TASKS TAB -->
+    <section class="tab-panel" id="tab-tasks" role="tabpanel">
+      <div class="tasks-container">
+        <div class="add-form glass-card">
+          <div class="form-row">
+            <input type="text" id="taskInput" class="glass-input" placeholder="Add a new task…" autocomplete="off">
+            <button class="add-btn" id="addTaskBtn" title="Add task">+</button>
+          </div>
+          <div class="form-row-meta">
+            <select id="taskPriority" class="glass-select">
+              <option value="low">🟢 Low</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="high">🔴 High</option>
+            </select>
+            <input type="text" id="taskSubject" class="glass-input sm" placeholder="Subject…">
+            <input type="date" id="taskDueDate" class="glass-input sm">
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="active">Active</button>
+          <button class="filter-btn" data-filter="completed">Done</button>
+        </div>
+
+        <div class="task-list" id="taskList">
+          <div class="empty-state"><div class="empty-icon">📋</div><p>No tasks yet. Add one above!</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── FLASHCARDS TAB -->
+    <section class="tab-panel" id="tab-flashcards" role="tabpanel">
+      <!-- Deck List -->
+      <div id="deckListView">
+        <div class="section-hdr">
+          <h3>My Decks</h3>
+          <button class="outline-btn" id="addDeckBtn">+ New Deck</button>
+        </div>
+        <div id="deckList" class="deck-list">
+          <div class="empty-state"><div class="empty-icon">🃏</div><p>No decks yet. Create your first one!</p></div>
+        </div>
+      </div>
+
+      <!-- Card Study View -->
+      <div id="cardStudyView" style="display:none">
+        <div class="study-header">
+          <button class="back-btn" id="backToDecksBtn">‹ Decks</button>
+          <span id="studyDeckName" class="study-deck-name"></span>
+          <button class="outline-btn sm" id="addCardBtn">+ Card</button>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="cardProgressFill"></div></div>
+        <div class="progress-label" id="cardProgressText">Card 1 of 1</div>
+
+        <div class="card-scene">
+          <div class="flashcard" id="flashcard">
+            <div class="card-face front">
+              <div class="face-label">QUESTION</div>
+              <div class="face-content" id="cardFront">Click to flip</div>
+              <div class="flip-hint">👆 tap to flip</div>
+            </div>
+            <div class="card-face back">
+              <div class="face-label">ANSWER</div>
+              <div class="face-content" id="cardBack"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-nav">
+          <button class="nav-arrow" id="prevCardBtn">←</button>
+          <div id="ratingBtns" class="rating-btns" style="display:none">
+            <button class="rate-btn fail" id="rateFailBtn">✕ Again</button>
+            <button class="rate-btn pass" id="ratePassBtn">✓ Got it</button>
+          </div>
+          <button class="nav-arrow" id="nextCardBtn">→</button>
+        </div>
+      </div>
+
+      <!-- Add Deck Modal -->
+      <div class="modal-overlay" id="addDeckModal" style="display:none">
+        <div class="modal glass-card">
+          <h3>New Flashcard Deck</h3>
+          <input type="text" id="newDeckName" class="glass-input" placeholder="Deck name (e.g., Biology)" autocomplete="off">
+          <input type="text" id="newDeckEmoji" class="glass-input" placeholder="Emoji (e.g., 🧬 — optional)">
+          <div class="modal-actions">
+            <button class="ghost-btn" id="cancelDeckBtn">Cancel</button>
+            <button class="primary-btn" id="saveDeckBtn">Create Deck</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Card Modal -->
+      <div class="modal-overlay" id="addCardModal" style="display:none">
+        <div class="modal glass-card">
+          <h3>New Flashcard</h3>
+          <textarea id="newCardFront" class="glass-input" placeholder="Question / Front" rows="3"></textarea>
+          <textarea id="newCardBack" class="glass-input" placeholder="Answer / Back" rows="3"></textarea>
+          <div class="modal-actions">
+            <button class="ghost-btn" id="cancelCardBtn">Cancel</button>
+            <button class="primary-btn" id="saveCardBtn">Add Card</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── AI TAB -->
+    <section class="tab-panel" id="tab-ai" role="tabpanel">
+      <div class="ai-container">
+        <div class="ai-badge-row">
+          <div class="ai-badge"><span class="ai-pulse"></span> Powered by Gemini AI</div>
+        </div>
+
+        <div id="apiKeySetup" class="glass-card api-setup">
+          <p>Enter your Gemini API key to enable AI features</p>
+          <div class="form-row">
+            <input type="password" id="apiKeyInput" class="glass-input" placeholder="AIza…" autocomplete="off">
+            <button class="primary-btn sm" id="saveApiKeyBtn">Save</button>
+          </div>
+          <a class="api-link" href="https://aistudio.google.com/app/apikey" target="_blank">Get a free API key →</a>
+        </div>
+
+        <div id="aiActions" class="ai-actions" style="display:none">
+          <button class="ai-action primary-action" id="summarizeBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Summarize Current Page
+          </button>
+          <button class="ai-action" id="aiQuizBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Generate Quiz Questions
+          </button>
+          <button class="ai-action" id="aiKeyTermsBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Extract Key Terms
+          </button>
+        </div>
+
+        <div id="aiLoading" class="ai-loading" style="display:none">
+          <div class="ai-spinner"></div>
+          <p id="aiLoadingText">Analyzing page content…</p>
+        </div>
+
+        <div id="aiResult" class="ai-result glass-card" style="display:none">
+          <div class="ai-result-header">
+            <span class="ai-result-label" id="aiResultLabel">Summary</span>
+            <button class="icon-btn" id="copyResultBtn" title="Copy">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <div class="ai-result-body" id="aiResultBody"></div>
+        </div>
+
+        <div id="aiChatArea" class="ai-chat" style="display:none">
+          <div class="form-row">
+            <input type="text" id="aiCustomPrompt" class="glass-input" placeholder="Ask anything about this page…" autocomplete="off">
+            <button class="primary-btn sm" id="aiAskBtn">Ask</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── STATS TAB -->
+    <section class="tab-panel" id="tab-stats" role="tabpanel">
+      <div class="stats-container">
+        <div class="streak-hero">
+          <div class="streak-num" id="statsStreakNum">0</div>
+          <div class="streak-txt">Day Streak 🔥</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card purple">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-val" id="statFocus">0m</div>
+            <div class="stat-lbl">Focus Today</div>
+          </div>
+          <div class="stat-card teal">
+            <div class="stat-icon">✅</div>
+            <div class="stat-val" id="statTasks">0</div>
+            <div class="stat-lbl">Tasks Done</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-icon">🃏</div>
+            <div class="stat-val" id="statCards">0</div>
+            <div class="stat-lbl">Cards Reviewed</div>
+          </div>
+          <div class="stat-card rose">
+            <div class="stat-icon">🍅</div>
+            <div class="stat-val" id="statPomodoros">0</div>
+            <div class="stat-lbl">Pomodoros</div>
+          </div>
+        </div>
+
+        <div class="chart-card glass-card">
+          <div class="chart-title">7-Day Study Time</div>
+          <div class="bar-chart" id="weeklyChart"></div>
+        </div>
+
+        <button class="ghost-btn sm center-btn" id="resetStatsBtn">Reset All Stats</button>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── NOTES TAB -->
+    <section class="tab-panel" id="tab-notes" role="tabpanel">
+      <div class="notes-container">
+        <div class="notes-topbar">
+          <div class="notes-scope-tabs">
+            <button class="scope-tab active" data-scope="global">📌 Global</button>
+            <button class="scope-tab" data-scope="page">🌐 This Page</button>
+          </div>
+          <div class="notes-actions">
+            <span class="save-status" id="saveStatus"></span>
+            <button class="icon-btn danger" id="clearNoteBtn" title="Clear note">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+            </button>
+          </div>
+        </div>
+        <textarea id="noteArea" class="note-area" placeholder="Start typing your notes here… they're auto-saved ✓"></textarea>
+        <div class="notes-footer">
+          <span id="charCount" class="note-meta">0 chars</span>
+          <span id="wordCount" class="note-meta">0 words</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── SCHEDULE TAB -->
+    <section class="tab-panel" id="tab-schedule" role="tabpanel">
+      <div class="schedule-container">
+        <div class="schedule-top">
+          <h3>Weekly Planner</h3>
+          <button class="outline-btn sm" id="addSubjectBtn">+ Subject</button>
+        </div>
+        <div id="subjectPalette" class="subject-palette"></div>
+        <div class="schedule-scroll">
+          <div id="scheduleGrid" class="schedule-grid"></div>
+        </div>
+        <p class="schedule-hint">Select a subject, then click cells to assign.</p>
+      </div>
+
+      <!-- Add Subject Modal -->
+      <div class="modal-overlay" id="addSubjectModal" style="display:none">
+        <div class="modal glass-card">
+          <h3>Add Subject</h3>
+          <input type="text" id="newSubjectName" class="glass-input" placeholder="Subject name (e.g., Physics)" autocomplete="off">
+          <div class="color-row">
+            <span class="color-lbl">Pick a color:</span>
+            <div id="colorSwatches" class="color-swatches"></div>
+          </div>
+          <div class="modal-actions">
+            <button class="ghost-btn" id="cancelSubjectBtn">Cancel</button>
+            <button class="primary-btn" id="saveSubjectBtn">Add Subject</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────── FOCUS TAB -->
+    <section class="tab-panel" id="tab-focus" role="tabpanel">
+      <div class="focus-container">
+        <div class="focus-hero-card glass-card">
+          <div class="focus-toggle-row">
+            <label class="big-toggle" for="focusToggle">
+              <input type="checkbox" id="focusToggle">
+              <div class="toggle-track">
+                <div class="toggle-thumb">
+                  <span class="off-icon">😴</span>
+                  <span class="on-icon">🎯</span>
+                </div>
+              </div>
+            </label>
+            <div class="focus-info">
+              <div class="focus-status-label" id="focusStatusLabel">Focus Mode Off</div>
+              <div class="focus-status-sub" id="focusStatusSub">Enable to block distracting sites</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="block-section glass-card">
+          <div class="block-header">
+            <h4>Blocked Sites</h4>
+            <span id="blockCount" class="block-count">0 sites</span>
+          </div>
+          <div class="form-row">
+            <input type="text" id="blockSiteInput" class="glass-input" placeholder="e.g., youtube.com" autocomplete="off">
+            <button class="add-btn" id="addBlockBtn">+</button>
+          </div>
+          <div id="blockList" class="block-list">
+            <div class="empty-state sm"><div class="empty-icon">🛡️</div><p>No sites blocked.</p></div>
+          </div>
+        </div>
+
+        <div class="quick-add glass-card">
+          <p class="quick-lbl">Quick block:</p>
+          <div class="chips">
+            <button class="chip" data-site="youtube.com">YouTube</button>
+            <button class="chip" data-site="instagram.com">Instagram</button>
+            <button class="chip" data-site="twitter.com">Twitter/X</button>
+            <button class="chip" data-site="facebook.com">Facebook</button>
+            <button class="chip" data-site="reddit.com">Reddit</button>
+            <button class="chip" data-site="tiktok.com">TikTok</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main><!-- /tab-content -->
+
+  <!-- ═══════════════════════════════════ SETTINGS MODAL -->
+  <div class="modal-overlay" id="settingsModal" style="display:none">
+    <div class="modal glass-card">
+      <div class="modal-header">
+        <h3>Settings</h3>
+        <button class="icon-btn" id="closeSettingsBtn">✕</button>
+      </div>
+      <div class="setting-group">
+        <label class="setting-lbl">Gemini API Key</label>
+        <div class="form-row">
+          <input type="password" id="settingsApiKey" class="glass-input" placeholder="AIza…" autocomplete="off">
+          <button class="primary-btn sm" id="saveSettingsKeyBtn">Save</button>
+        </div>
+        <a class="api-link" href="https://aistudio.google.com/app/apikey" target="_blank">Get free key at aistudio.google.com →</a>
+      </div>
+      <div class="setting-group">
+        <label class="setting-lbl">Notifications</label>
+        <div class="setting-toggle-row">
+          <span>Timer alerts</span>
+          <label class="mini-toggle"><input type="checkbox" id="settingNotifs" checked><span class="mini-slider"></span></label>
+        </div>
+      </div>
+      <div class="setting-group">
+        <label class="setting-lbl">Auto-start breaks</label>
+        <div class="setting-toggle-row">
+          <span>Start break automatically after focus</span>
+          <label class="mini-toggle"><input type="checkbox" id="settingAutoBreak"><span class="mini-slider"></span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<!-- Toast -->
+<div id="toast" class="toast" role="alert"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>

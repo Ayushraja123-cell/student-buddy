@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Blocked — Student Buddy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --purple: #8b5cf6;
+      --teal: #14b8a6;
+      --bg: #060614;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 30%, rgba(139,92,246,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 70%, rgba(20,184,166,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .card {
+      text-align: center;
+      padding: 48px 40px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      backdrop-filter: blur(20px);
+      max-width: 480px;
+      width: 90%;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+    .shield {
+      font-size: 72px;
+      display: block;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 0 24px rgba(139,92,246,0.5));
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #c4b5fd, #5eead4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .site-name {
+      font-size: 16px;
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+    .site-name strong { color: #e2e8f0; }
+    p {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .quote {
+      font-size: 15px;
+      font-style: italic;
+      color: #8b5cf6;
+      padding: 14px 20px;
+      background: rgba(139,92,246,0.08);
+      border-left: 3px solid var(--purple);
+      border-radius: 8px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+    .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), #6d28d9);
+      color: white;
+      box-shadow: 0 4px 16px rgba(139,92,246,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(139,92,246,0.45); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.05);
+      color: #94a3b8;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+    .timer { font-size: 13px; color: #475569; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="shield">🛡️</span>
+    <h1>Focus Mode Active</h1>
+    <div class="site-name" id="siteName">This site is blocked</div>
+    <div class="quote" id="quoteEl"></div>
+    <p>You're in deep focus mode. This site has been blocked to help you stay productive. Come back to it after your study session!</p>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="history.back()">← Go Back</button>
+      <a class="btn btn-ghost" href="chrome://newtab">New Tab</a>
+    </div>
+    <div class="timer" id="timerEl"></div>
+  </div>
+
+  <script>
+    const quotes = [
+      '"The secret of getting ahead is getting started." — Mark Twain',
+      '"It always seems impossible until it\'s done." — Nelson Mandela',
+      '"Don\'t watch the clock; do what it does. Keep going." — Sam Levenson',
+      '"Education is the most powerful weapon you can use to change the world." — Nelson Mandela',
+      '"The beautiful thing about learning is nobody can take it away from you." — B.B. King',
+      '"Success is the sum of small efforts repeated day in and day out." — Robert Collier',
+    ];
+
+    const params = new URLSearchParams(window.location.search);
+    const site = params.get('site') || 'this site';
+    document.getElementById('siteName').innerHTML = `<strong>${site}</strong> is blocked during focus mode`;
+    document.getElementById('quoteEl').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+
+    // Show focus timer (read from storage)
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.get(['swTimerState'], ({ swTimerState }) => {
+        if (swTimerState?.isRunning && swTimerState?.startTime) {
+          const update = () => {
+            const elapsed = (Date.now() - swTimerState.startTime) / 1000;
+            const remaining = Math.max(0, swTimerState.totalTime - elapsed);
+            const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+            const s = Math.floor(remaining % 60).toString().padStart(2, '0');
+            document.getElementById('timerEl').textContent = `⏱ ${m}:${s} remaining in focus session`;
+          };
+          update();
+          setInterval(update, 1000);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

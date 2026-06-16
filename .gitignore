@@ -1,0 +1,27 @@
+# ── OS files ──────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor files ──────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.user
+
+# ── Node (for Week 4 backend) ─────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log
+.env
+.env.local
+.env.production
+
+# ── Build output ──────────────────────────────────
+dist/
+build/
+
+# ── Secrets — NEVER commit these ─────────────────
+*.pem
+*.key
+serviceAccountKey.json
