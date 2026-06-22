@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- v2.0.0 — AI enhanced · SM-2 flashcards · Cloud sync · Auth -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Buddy</title>
   <meta name="description" content="All-in-one AI-powered study companion Chrome extension">
@@ -23,6 +24,12 @@
       <div class="streak-badge" id="streakBadge" title="Study streak">
         <span>🔥</span>
         <span id="streakCount">0</span>
+      </div>
+      <div class="sync-badge" id="syncBadge" title="Cloud sync status" style="display:none">
+        <span id="syncIcon">☁️</span>
+      </div>
+      <div class="user-avatar" id="userAvatar" title="Account" style="display:none">
+        <img id="userAvatarImg" src="" alt="" width="24" height="24">
       </div>
       <button class="icon-btn" id="settingsBtn" title="Settings">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -165,6 +172,7 @@
           <button class="filter-btn active" data-filter="all">All</button>
           <button class="filter-btn" data-filter="active">Active</button>
           <button class="filter-btn" data-filter="completed">Done</button>
+          <button class="ghost-btn sm" id="clearCompletedBtn" title="Remove completed tasks">🗑 Clear done</button>
         </div>
 
         <div class="task-list" id="taskList">
@@ -179,7 +187,11 @@
       <div id="deckListView">
         <div class="section-hdr">
           <h3>My Decks</h3>
-          <button class="outline-btn" id="addDeckBtn">+ New Deck</button>
+          <div style="display:flex;gap:6px">
+            <button class="ghost-btn sm" id="exportCsvBtn" title="Export flashcards as CSV">📤 CSV</button>
+            <label class="ghost-btn sm" style="cursor:pointer" title="Import flashcards from CSV">📥 Import<input type="file" id="importCsvInput" accept=".csv" style="display:none"></label>
+            <button class="outline-btn" id="addDeckBtn">+ New Deck</button>
+          </div>
         </div>
         <div id="deckList" class="deck-list">
           <div class="empty-state"><div class="empty-icon">🃏</div><p>No decks yet. Create your first one!</p></div>
@@ -213,8 +225,10 @@
         <div class="card-nav">
           <button class="nav-arrow" id="prevCardBtn">←</button>
           <div id="ratingBtns" class="rating-btns" style="display:none">
-            <button class="rate-btn fail" id="rateFailBtn">✕ Again</button>
-            <button class="rate-btn pass" id="ratePassBtn">✓ Got it</button>
+            <button class="rate-btn rate-again" id="rateAgainBtn" title="Forgot — review again soon">✕ Again</button>
+            <button class="rate-btn rate-hard" id="rateHardBtn" title="Hard — slightly longer interval">~ Hard</button>
+            <button class="rate-btn rate-good" id="rateGoodBtn" title="Good — normal interval">✓ Good</button>
+            <button class="rate-btn rate-easy" id="rateEasyBtn" title="Easy — longer interval">⚡ Easy</button>
           </div>
           <button class="nav-arrow" id="nextCardBtn">→</button>
         </div>
@@ -266,15 +280,23 @@
         <div id="aiActions" class="ai-actions" style="display:none">
           <button class="ai-action primary-action" id="summarizeBtn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            Summarize Current Page
+            Summarize Page
           </button>
           <button class="ai-action" id="aiQuizBtn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            Generate Quiz Questions
+            Generate Quiz
           </button>
           <button class="ai-action" id="aiKeyTermsBtn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             Extract Key Terms
+          </button>
+          <button class="ai-action" id="aiELI5Btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Explain Like I'm 5
+          </button>
+          <button class="ai-action" id="aiStudyGuideBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Generate Study Guide
           </button>
         </div>
 
@@ -285,10 +307,16 @@
 
         <div id="aiResult" class="ai-result glass-card" style="display:none">
           <div class="ai-result-header">
+            <button class="ghost-btn sm" id="aiBackBtn">← Back</button>
             <span class="ai-result-label" id="aiResultLabel">Summary</span>
-            <button class="icon-btn" id="copyResultBtn" title="Copy">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            </button>
+            <div style="display:flex;gap:6px;">
+              <button class="icon-btn" id="saveToCardBtn" title="Save to Flashcard">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              </button>
+              <button class="icon-btn" id="copyResultBtn" title="Copy">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
           </div>
           <div class="ai-result-body" id="aiResultBody"></div>
         </div>
@@ -454,6 +482,37 @@
         <h3>Settings</h3>
         <button class="icon-btn" id="closeSettingsBtn">✕</button>
       </div>
+
+      <!-- Auth Section -->
+      <div class="setting-group auth-group" id="authLoggedOut">
+        <label class="setting-lbl">☁️ Cloud Sync</label>
+        <p class="auth-desc">Sign in with Google to sync your data across devices</p>
+        <button class="google-btn" id="googleSignInBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Sign in with Google
+        </button>
+        <div class="form-row" style="margin-top:8px">
+          <input type="text" id="settingsBackendUrl" class="glass-input" placeholder="Backend URL (http://localhost:3001)">
+          <button class="primary-btn sm" id="saveBackendUrlBtn">Set</button>
+        </div>
+      </div>
+
+      <div class="setting-group auth-group" id="authLoggedIn" style="display:none">
+        <label class="setting-lbl">☁️ Account</label>
+        <div class="auth-user-row">
+          <img id="settingsUserAvatar" src="" width="32" height="32" style="border-radius:50%">
+          <div>
+            <div id="settingsUserName" style="font-size:13px;font-weight:600"></div>
+            <div id="settingsUserEmail" style="font-size:11px;color:var(--txt3)"></div>
+          </div>
+          <button class="ghost-btn sm" id="signOutBtn">Sign out</button>
+        </div>
+        <div class="sync-status-row">
+          <span id="syncStatusText" class="sync-status-txt">Synced ✓</span>
+          <button class="outline-btn sm" id="forceSyncBtn">Sync now</button>
+        </div>
+      </div>
+
       <div class="setting-group">
         <label class="setting-lbl">Gemini API Key</label>
         <div class="form-row">
@@ -474,6 +533,13 @@
         <div class="setting-toggle-row">
           <span>Start break automatically after focus</span>
           <label class="mini-toggle"><input type="checkbox" id="settingAutoBreak"><span class="mini-slider"></span></label>
+        </div>
+      </div>
+      <div class="setting-group">
+        <label class="setting-lbl">📦 Data Backup</label>
+        <div style="display:flex;gap:8px">
+          <button class="outline-btn sm" id="exportDataBtn">📤 Export All Data</button>
+          <label class="outline-btn sm" style="cursor:pointer">📥 Import Data<input type="file" id="importDataInput" accept=".json" style="display:none"></label>
         </div>
       </div>
     </div>

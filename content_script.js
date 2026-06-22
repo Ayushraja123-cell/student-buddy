@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         .replace(/\n{3,}/g, '\n\n')
         .replace(/\s{2,}/g, ' ')
         .trim()
-        .substring(0, 8000);
+        .substring(0, 15000);
 
       sendResponse({
         text,
@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
     } catch (e) {
       sendResponse({
-        text: document.body.innerText.substring(0, 8000),
+        text: document.body.innerText.substring(0, 15000),
         url: window.location.href,
         title: document.title
       });
