@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Student Buddy",
-  "version": "1.0.0",
-  "description": "Your all-in-one AI-powered study companion — Pomodoro timer, flashcards, AI summarizer, focus mode, and more.",
+  "version": "2.0.0",
+  "description": "Your all-in-one AI-powered study companion — Pomodoro timer, flashcards, AI summarizer, focus mode, cloud sync, and more.",
   "icons": {
     "16":  "icons/icon16.png",
     "48":  "icons/icon48.png",
@@ -35,13 +35,32 @@
     "scripting",
     "notifications",
     "declarativeNetRequest",
-    "declarativeNetRequestFeedback"
+    "declarativeNetRequestFeedback",
+    "identity"
   ],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": [
+    "<all_urls>",
+    "https://accounts.google.com/*",
+    "https://*.googleapis.com/*",
+    "http://localhost:3001/*"
+  ],
+  "oauth2": {
+    "client_id": "YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+    "scopes": ["openid", "email", "profile"]
+  },
   "web_accessible_resources": [
     {
       "resources": ["blocked.html"],
       "matches": ["<all_urls>"]
     }
-  ]
+  ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Open Student Buddy"
+    }
+  }
 }
